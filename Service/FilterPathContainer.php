@@ -35,9 +35,16 @@ final class FilterPathContainer
      */
     public function __construct(string $source, string $target = '', array $options = [])
     {
-        $this->source = $source;
+        $extension = pathinfo($source, PATHINFO_EXTENSION);
         $this->target = '' !== $target ? $target : $source;
         $this->options = $options;
+        $this->source = $source;
+
+        if ($extension === 'webp') {
+            preg_match('/__([a-z]+)__\.webp$/', $source, $matches);
+            $realExtention = $matches[1];
+            $this->source = preg_replace('/(__[a-z]+__\.webp)$/', '.'.$realExtention, $source );
+        }
     }
 
     /**

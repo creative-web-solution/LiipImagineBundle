@@ -77,6 +77,23 @@ class CacheManager
         $this->defaultResolver = $defaultResolver ?: 'default';
     }
 
+    public function getResultPath($path, $filter, $targetExtension = null)
+    {
+        $config = $this->filterConfig->get($filter);
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        if ($targetExtension==null) {
+            $targetExtension = $config['format'] ?? $extension;
+        }
+        if ($extension &&
+            $targetExtension &&
+            mb_strtolower($targetExtension, 'UTF-8') !== mb_strtolower($extension, 'UTF-8')
+        ) {
+            $path = mb_substr($path, 0, -mb_strlen($extension, 'UTF-8') - 1, 'UTF-8') . '__' . $extension . '__.' . $targetExtension;
+        }
+
+        return $path;
+    }
+
     /**
      * Adds a resolver to handle cached images for the given filter.
      *
@@ -106,6 +123,8 @@ class CacheManager
      */
     public function getBrowserPath($path, $filter, array $runtimeConfig = [], $resolver = null, $referenceType = UrlGeneratorInterface::ABSOLUTE_URL)
     {
+        $path = $this->getResultPath($path, $filter);
+
         if (!empty($runtimeConfig)) {
             $rcPath = $this->getRuntimePath($path, $runtimeConfig);
 
@@ -145,6 +164,8 @@ class CacheManager
      */
     public function generateUrl($path, $filter, array $runtimeConfig = [], $resolver = null, $referenceType = UrlGeneratorInterface::ABSOLUTE_URL)
     {
+        $path = $this->getResultPath($path, $filter);
+
         $params = [
             'path' => ltrim($path, '/'),
             'filter' => $filter,
@@ -177,6 +198,7 @@ class CacheManager
      */
     public function isStored($path, $filter, $resolver = null)
     {
+        $path = $this->getResultPath($path, $filter);
         return $this->getResolver($filter, $resolver)->isStored($path, $filter);
     }
 
@@ -193,6 +215,8 @@ class CacheManager
      */
     public function resolve($path, $filter, $resolver = null)
     {
+        $path = $this->getResultPath($path, $filter);
+
         if (false !== mb_strpos($path, '/../') || 0 === mb_strpos($path, '../')) {
             throw new NotFoundHttpException(sprintf("Source image was searched with '%s' outside of the defined root path", $path));
         }
@@ -233,6 +257,7 @@ class CacheManager
      */
     public function store(BinaryInterface $binary, $path, $filter, $resolver = null)
     {
+        $path = $this->getResultPath($path, $filter);
         $this->getResolver($filter, $resolver)->store($binary, $path, $filter);
     }
 

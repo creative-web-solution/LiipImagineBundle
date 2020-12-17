@@ -150,10 +150,10 @@ class FilterService
     ): string {
         $filterPathContainers = [$basePathContainer];
 
-        if ($this->webpGenerate) {
-            $webpPathContainer = $basePathContainer->createWebp($this->webpOptions);
-            $filterPathContainers[] = $webpPathContainer;
-        }
+        // if ($this->webpGenerate) {
+        //     $webpPathContainer = $basePathContainer->createWebp($this->webpOptions);
+        //     $filterPathContainers[] = $webpPathContainer;
+        // }
 
         foreach ($filterPathContainers as $filterPathContainer) {
             if (!$this->cacheManager->isStored($filterPathContainer->getTarget(), $filter, $resolver)) {
@@ -166,9 +166,9 @@ class FilterService
             }
         }
 
-        if ($webpSupported && isset($webpPathContainer)) {
-            return $this->cacheManager->resolve($webpPathContainer->getTarget(), $filter, $resolver);
-        }
+        // if ($webpSupported && isset($webpPathContainer)) {
+        //     return $this->cacheManager->resolve($webpPathContainer->getTarget(), $filter, $resolver);
+        // }
 
         return $this->cacheManager->resolve($basePathContainer->getTarget(), $filter, $resolver);
     }
